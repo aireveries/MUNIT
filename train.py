@@ -76,11 +76,11 @@ while True:
                 trainer.dis_update(images_a, images_b, config)
                 trainer.gen_update(images_a, images_b, config)
                 torch.cuda.synchronize()
-            else:
-                # Main training code
-                trainer.dis_update(images_a, images_b, config)
-                trainer.gen_update(images_a, images_b, config)
-                torch.cuda.synchronize()
+        else:
+            # Main training code
+            trainer.dis_update(images_a, images_b, config)
+            trainer.gen_update(images_a, images_b, config)
+            torch.cuda.synchronize()
                 
         # Dump training stats in log file
         if (iterations + 1) % config['log_iter'] == 0:
