@@ -8,6 +8,8 @@ from torch.autograd import Variable
 from trainer import MUNIT_Trainer, UNIT_Trainer
 import torch.backends.cudnn as cudnn
 import torch
+import torchvision as tv
+from PIL import Image
 try:
     from itertools import izip as zip
 except ImportError: # will be 3.x series
@@ -62,6 +64,10 @@ output_directory = os.path.join(output_path + "/outputs", model_name)
 checkpoint_directory, image_directory = prepare_sub_folder(output_directory)
 shutil.copy(opts.config, os.path.join(output_directory, 'config.yaml')) # copy config file to output folder
 
+def img_fn_to_tensor(fn):
+    img = Image.open(fn).convert('RGB')
+    return tv.transforms.ToTensor()(img)
+
 # Start training
 iterations = trainer.resume(checkpoint_directory, hyperparameters=config) if opts.resume else 0
 while True:
@@ -92,8 +98,12 @@ while True:
             with torch.no_grad():
                 test_image_outputs = trainer.sample(test_display_images_a, test_display_images_b)
                 train_image_outputs = trainer.sample(train_display_images_a, train_display_images_b)
-            write_2images(test_image_outputs, display_size, image_directory, 'test_%08d' % (iterations + 1))
-            write_2images(train_image_outputs, display_size, image_directory, 'train_%08d' % (iterations + 1))
+            test_a2b_filename, test_b2a_filename = write_2images(test_image_outputs, display_size, image_directory, 'test_%08d' % (iterations + 1))
+            train_a2b_filename, train_b2a_filename = write_2images(train_image_outputs, display_size, image_directory, 'train_%08d' % (iterations + 1))
+            train_writer.add_image('train_a2b', img_fn_to_tensor(train_a2b_filename), iterations)
+            train_writer.add_image('train_b2a', img_fn_to_tensor(train_b2a_filename), iterations)
+            train_writer.add_image('test_a2b', img_fn_to_tensor(test_a2b_filename), iterations)
+            train_writer.add_image('test_a2b', img_fn_to_tensor(test_b2a_filename), iterations)
             # HTML
             write_html(output_directory + "/index.html", iterations + 1, config['image_save_iter'], 'images')
 
