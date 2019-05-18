@@ -69,12 +69,19 @@ while True:
         trainer.update_learning_rate()
         images_a, images_b = images_a.cuda().detach(), images_b.cuda().detach()
 
-        with Timer("Elapsed time in update: %f"):
-            # Main training code
-            trainer.dis_update(images_a, images_b, config)
-            trainer.gen_update(images_a, images_b, config)
-            torch.cuda.synchronize()
 
+        if iterations % 1000 == 0:
+            with Timer("Elapsed time in update: %f"):
+                # Main training code
+                trainer.dis_update(images_a, images_b, config)
+                trainer.gen_update(images_a, images_b, config)
+                torch.cuda.synchronize()
+            else:
+                # Main training code
+                trainer.dis_update(images_a, images_b, config)
+                trainer.gen_update(images_a, images_b, config)
+                torch.cuda.synchronize()
+                
         # Dump training stats in log file
         if (iterations + 1) % config['log_iter'] == 0:
             print("Iteration: %08d/%08d" % (iterations + 1, max_iter))

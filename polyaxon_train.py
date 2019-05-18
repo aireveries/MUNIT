@@ -25,9 +25,8 @@ def open_yaml(fn):
         except yaml.YAMLError as exc:
             raise exc
             
-def write_yaml(data):
-    ts = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    temp_fn = '/tmp/{}-{}.yaml'.format(os.environ['HOSTNAME'], ts)
+def write_yaml(data, out_fn):
+    temp_fn = '/tmp/{}.yaml'.format(out_fn)
     with io.open(temp_fn, 'w', encoding='utf8') as outfile:
         yaml.dump(data, outfile, default_flow_style=False, allow_unicode=True)
     return temp_fn
@@ -43,11 +42,14 @@ def parse(s):
         
 data = open_yaml(opts.config)
     
+out_fn = [os.environ['HOSTNAME']]
 for (param, value) in opts.p:
     keys = param.split('.')
+    if param != 'data_root':
+        out_fn.append('{}={}'.format(param, value))
     nested_set(data, keys, parse(value))
-
-temp_fn = write_yaml(data)
+out_fn = ','.join(out_fn)
+temp_fn = write_yaml(data, out_fn)
 
 cmd = ['python', 'train.py', 
        '--config', temp_fn, 
