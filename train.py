@@ -103,7 +103,7 @@ while True:
             train_writer.add_image('train_a2b', img_fn_to_tensor(train_a2b_filename), iterations)
             train_writer.add_image('train_b2a', img_fn_to_tensor(train_b2a_filename), iterations)
             train_writer.add_image('test_a2b', img_fn_to_tensor(test_a2b_filename), iterations)
-            train_writer.add_image('test_a2b', img_fn_to_tensor(test_b2a_filename), iterations)
+            train_writer.add_image('test_b2a', img_fn_to_tensor(test_b2a_filename), iterations)
             # HTML
             write_html(output_directory + "/index.html", iterations + 1, config['image_save_iter'], 'images')
 
