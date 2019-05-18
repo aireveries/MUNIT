@@ -16,6 +16,7 @@ import os
 import sys
 import tensorboardX
 import shutil
+from polyaxon_client.tracking import Experiment
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config', type=str, default='configs/edges2handbags_folder.yaml', help='Path to the config file.')
@@ -31,6 +32,9 @@ config = get_config(opts.config)
 max_iter = config['max_iter']
 display_size = config['display_size']
 config['vgg_model_path'] = opts.output_path
+
+# Polyaxon Experiment
+experiment = Experiment()
 
 # Setup model and data loader
 if opts.trainer == 'MUNIT':
@@ -48,6 +52,11 @@ test_display_images_b = torch.stack([test_loader_b.dataset[i] for i in range(dis
 
 # Setup logger and output folders
 model_name = os.path.splitext(os.path.basename(opts.config))[0]
+
+output_path = opts.output_path
+if output_path == 'polyaxon':
+    output_path = experiment.get_outputs_path()
+
 train_writer = tensorboardX.SummaryWriter(os.path.join(opts.output_path + "/logs", model_name))
 output_directory = os.path.join(opts.output_path + "/outputs", model_name)
 checkpoint_directory, image_directory = prepare_sub_folder(output_directory)
