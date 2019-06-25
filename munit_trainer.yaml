@@ -13,6 +13,7 @@ environment:
 
 build:
   image: aireverie/munit:latest
+  branch: more_polyaxon_scripts
 
 declarations:
   config: foo

@@ -56,4 +56,6 @@ cmd = ['python', 'train.py',
        '--output_path', 'polyaxon',
        '--trainer', 'MUNIT']
 print(cmd)
-subprocess.run(cmd)
+cp = subprocess.run(cmd)
+if cp.returncode != 0:
+  raise Exception(cp)

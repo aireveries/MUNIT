@@ -26,3 +26,4 @@ RUN apt install -y imagemagick
 RUN pip install -U jupyter
 RUN pip install -U ipywidgets
 RUN pip install -U tqdm
+RUN pip install -U polyaxon_client
