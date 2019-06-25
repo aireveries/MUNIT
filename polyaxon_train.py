@@ -42,7 +42,7 @@ def parse(s):
         
 data = open_yaml(opts.config)
     
-out_fn = [os.environ['HOSTNAME']]
+out_fn = []
 for (param, value) in opts.p:
     keys = param.split('.')
     if param != 'data_root':

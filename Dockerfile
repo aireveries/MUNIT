@@ -21,6 +21,8 @@ RUN bash /tmp/Anaconda3-5.0.1-Linux-x86_64.sh -b -p $ANACONDA
 RUN rm /tmp/Anaconda3-5.0.1-Linux-x86_64.sh -rf
 RUN conda install -y pytorch=0.4.1 torchvision cuda91 -c pytorch
 RUN pip install tensorboard tensorboardX;
+RUN apt update
 RUN apt install -y imagemagick
 RUN pip install -U jupyter
 RUN pip install -U ipywidgets
+RUN pip install -U tqdm
