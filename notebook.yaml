@@ -1,0 +1,10 @@
+version: 1
+
+kind: notebook
+
+
+build:
+  image: aireverie/munit:latest
+  branch: more_polyaxon_scripts
+
+

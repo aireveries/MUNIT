@@ -1,0 +1,36 @@
+---
+version: 1
+
+kind: experiment
+
+environment:
+  node_selector:
+    aws/type: p3.2xlarge
+  resources:
+    gpu:
+      requests: 1
+      limits: 1
+
+build:
+  image: aireverie/munit:latest
+  branch: more_polyaxon_scripts
+
+declarations:
+  config: foo
+  root: foo
+  max_iter: 8000
+  save_iter: 1000
+  new_size: 512
+  crop_size: 512
+
+run:
+  cmd: >
+    python munit_translator.py 
+    --config /mnt/outputs/pipeline/munit/experiments/151/outputs/max_iter=1000,image_save_iter=1000,snapshot_save_iter=1000,new_size=512,crop_image_height=512,crop_image_width=512/config.yaml
+    --synthetic-folder /mnt/users/patrick/as_coco/kubera 
+    --real-folder /mnt/users/patrick/ecs_crop 
+    --checkpoint /mnt/outputs/pipeline/munit/experiments/151/outputs/max_iter=1000,image_save_iter=1000,snapshot_save_iter=1000,new_size=512,crop_image_height=512,crop_image_width=512/checkpoints/gen_00001000.pt
+    --blocksize 20 
+    --blockidx 0 
+    --nvar 5 
+    --outdir /mnt/users/patrick//munit_translated
