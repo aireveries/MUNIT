@@ -57,5 +57,6 @@ cmd = ['python', 'train.py',
        '--trainer', 'MUNIT']
 print(cmd)
 cp = subprocess.run(cmd)
-if cp.returncode != 0:
+
+if cp.returncode < 0 or cp.returncode > 1:
   raise Exception(cp)
