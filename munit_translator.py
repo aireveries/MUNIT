@@ -27,6 +27,7 @@ def parse_args():
     parser.add_argument("--synthetic-folder", required=True)
     parser.add_argument("--real-folder", required=True)
     parser.add_argument("--checkpoint", required=True)
+    parser.add_argument("--split_names", default=["train", "test", "val"], nargs='+')
     parser.add_argument("--blocksize", default=8, type=int)
     parser.add_argument("--blockidx", default=0, type=int)
     parser.add_argument("--nvar", default=5, type=int)
@@ -226,9 +227,8 @@ def runner(args, partition):
 
 def main():
     args = parse_args()
-    runner(args, "train")
-    runner(args, "valid")
-    runner(args, "test")
+    for split in args.split_names:
+        runner(args, split)
 
 if __name__ == "__main__":
     main()
