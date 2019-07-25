@@ -13,6 +13,7 @@ import torchvision.utils as vutils
 import torch
 from torchvision import transforms
 from trainer import MUNIT_Trainer
+from glob import glob
 
 from functools import partial
 import json
@@ -25,7 +26,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
     parser.add_argument("--synthetic-folder", required=True)
-    parser.add_argument("--real-folder", required=True)
+    parser.add_argument("--real-glob", required=True)
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--split_names", default=["train", "test", "val"], nargs='+')
     parser.add_argument("--blocksize", default=8, type=int)
@@ -60,13 +61,14 @@ def runner(args, partition):
     synthetic_labels_base_path = f"{synth_path / 'labels/{}/'}".format(partition)
     ann_file = f"{synth_path / 'annotations/instances_{}.json'}".format(partition)
 
-    real_path = Path(args.real_folder)
-    real_images_list = f"{real_path / '*.jpg'}"
+    # real_path = Path(args.real_folder)
+    # real_images_list = f"{real_path / '*.jpg'}"
     
     
     with open(synthetic_images_list_file, "r") as f:
         synthetic_images_list = sorted(list([f.replace("\n", "") for f in f.readlines()]))
-    real_images_list = sorted(list(glob.glob(real_images_list)))
+    real_images_list = sorted(list(glob(args.real_glob)))
+    # real_images_list = sorted(list(glob.glob(real_images_list)))
     
     
     opts = Options(args.config, args.checkpoint)
