@@ -33,8 +33,8 @@ def parse_args():
     parser.add_argument("--blockidx", default=0, type=int)
     parser.add_argument("--nvar", default=5, type=int)
     parser.add_argument("--outdir", required=True)
-    parser.add_argument("--in-width", default=908, type=int)
-    parser.add_argument("--in-height", default=512, type=int)
+    parser.add_argument("--in-width", default=908, type=int, help="If -1, don't resize") 
+    parser.add_argument("--in-height", default=512, type=int, help="If -1, don't resize")
     parser.add_argument("--out-width", default=1280, type=int)
     parser.add_argument("--out-height", default=720, type=int)
     return parser.parse_args()
@@ -159,7 +159,7 @@ def runner(args, partition):
     os.makedirs(labels_loc, exist_ok=True)
     os.makedirs(images_loc, exist_ok=True)
     os.makedirs(annotations_loc, exist_ok=True)
-
+    
     if args.blockidx == 0:
         with open(ann_file, "r") as f:
             ann = json.load(f)
@@ -169,7 +169,12 @@ def runner(args, partition):
 
         all_images = [None] * n_images * args.nvar
         all_anns = [None] * n_annotations * args.nvar
-
+        
+        # image_id is not necessarily equal to its array index
+        image_id_to_arr_idx_map = {}
+        for ix, ann_img in enumerate(ann['images']):
+            image_id_to_arr_idx_map[ann_img['id']] = ix + 1
+        
         for i in range(args.nvar):
             for j in range(n_images):
                 all_images[n_images * i + j] = copy.deepcopy(ann["images"][j])
@@ -186,10 +191,10 @@ def runner(args, partition):
             for j in range(n_annotations):
                 all_anns[n_annotations * i + j] = copy.deepcopy(ann["annotations"][j])
                 all_anns[n_annotations * i + j]["id"] = n_annotations * i + j + len(all_images) + 1
-                all_anns[n_annotations * i + j]["image_id"] = n_images * i + ann["annotations"][j]["image_id"]
+                all_anns[n_annotations * i + j]["image_id"] = n_images * i + image_id_to_arr_idx_map[ann["annotations"][j]["image_id"]]
 
         ann["images"] = all_images
-        ann["anns"] = all_anns
+        ann["annotations"] = all_anns
 
         annotations_path = os.path.join(annotations_loc, "instances_{}.json".format(partition))
         with open(annotations_path, "w") as f:
@@ -199,7 +204,9 @@ def runner(args, partition):
 
     for sip_ix, synthetic_image_path in enumerate(synthetic_images_list[args.blockidx::args.blocksize]):
         print("Progress: {}/{}".format(sip_ix, len(synthetic_images_list[args.blockidx::args.blocksize])))
-        synthetic_image = Image.open(synthetic_image_path).resize((args.in_width, args.in_height), Image.ANTIALIAS)
+        synthetic_image = Image.open(synthetic_image_path)
+        if args.in_width != -1 and args.out_width != -1:
+            synthetic_image = synthetic_image.resize((args.in_width, args.in_height), Image.ANTIALIAS)
         real_images = [real_images_list[i] for i in list(np.random.permutation(len(real_images_list))[:args.nvar])]
 
         for style_ix, real_image_path in enumerate(real_images):
