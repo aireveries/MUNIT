@@ -1,0 +1,36 @@
+version: 1
+kind: group
+hptuning:
+  concurrency: 30
+  matrix:
+    blockidx:
+      range: '0:20:1'
+environment:
+  node_selector:
+    aws/type: p3.2xlarge
+  resources:
+    gpu:
+      requests: 1
+      limits: 1
+declarations:
+  config: >-
+    /mnt/outputs/pipeline/munit/experiments/730/outputs/max_iter=10000,image_save_iter=1000,snapshot_save_iter=1000,new_size=512,crop_image_height=512,crop_image_width=512/config.yaml
+  synthetic_folder: /mnt/internal/motorola/Motorola_Capture_50k/yolo/pipe_res1
+  real_glob: /mnt/clients/motorola/machine/yolo/pipe_res1/images/train_100/*.png
+  checkpoint: >-
+    /mnt/outputs/pipeline/munit/experiments/730/outputs/max_iter=10000,image_save_iter=1000,snapshot_save_iter=1000,new_size=512,crop_image_height=512,crop_image_width=512/checkpoints/gen_00010000.pt
+  blocksize: 20
+  nvar: 2
+  outdir: /mnt/users/patrick/motorola_munit50k_fixed_translated
+  split_names: train_25 train_50 train_100 test valid
+  root: /mnt/outputs/pipeline/munit/experiments/730
+build:
+  image: 'aireverie/munit:latest'
+  branch: more_polyaxon_scripts
+run:
+  cmd: >-
+    set -o noglob; python munit_translator.py  --config {{ config }}
+    --synthetic-folder {{ synthetic_folder }} --real-glob {{ real_glob }}
+    --in-width 1280 --in-height 720
+    --split_names {{ split_names }} --checkpoint {{ checkpoint }} --blocksize {{
+    blocksize }} --blockidx {{ blockidx }} --outdir {{ outdir }} --nvar {{ nvar }}
