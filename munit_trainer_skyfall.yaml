@@ -20,7 +20,7 @@ declarations:
   root: /mnt/users/thomas/skyfall/munit50k/
   max_iter: 10000
   save_iter: 1000
-  new_size: null
+  new_size: 512
   crop_size: 512
 
 run:
