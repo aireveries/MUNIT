@@ -1,0 +1,37 @@
+---
+version: 1
+
+kind: experiment
+
+environment:
+  node_selector:
+    aws/type: p3.2xlarge
+  resources:
+    gpu:
+      requests: 1
+      limits: 1
+
+build:
+  image: aireverie/munit:latest
+  branch: more_polyaxon_scripts
+
+declarations:
+  config: configs/skyfall.yaml
+  root: /mnt/users/thomas/skyfall/munit50k/
+  max_iter: 10000
+  save_iter: 1000
+  new_size: null
+  crop_size: 512
+
+run:
+  cmd:
+    - >
+      python polyaxon_train.py
+      --config {{ config }}
+      -p data_root {{ root }}
+      -p max_iter {{ max_iter }}
+      -p image_save_iter {{ save_iter }}
+      -p snapshot_save_iter {{ save_iter }}
+      -p new_size {{ new_size }}
+      -p crop_image_height {{ crop_size }}
+      -p crop_image_width {{ crop_size }}

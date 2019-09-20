@@ -1,0 +1,45 @@
+batch_size: 1
+beta1: 0.5
+beta2: 0.999
+crop_image_height: 512
+crop_image_width: 512
+data_root: /mnt/users/thomas/skyfall_munit50k/
+dis:
+  activ: lrelu
+  dim: 64
+  gan_type: lsgan
+  n_layer: 4
+  norm: none
+  num_scales: 3
+  num_scales: 3
+  pad_type: reflect
+display_size: 16
+gamma: 0.5
+gan_w: 1
+gen:
+  activ: relu
+  dim: 64
+  mlp_dim: 256
+  n_downsample: 2
+  n_res: 4
+  pad_type: reflect
+  style_dim: 8
+image_display_iter: 500
+image_save_iter: 1000
+init: kaiming
+input_dim_a: 3
+input_dim_b: 3
+log_iter: 100
+lr: 0.0001
+lr_policy: step
+max_iter: 10000
+new_size: null
+num_workers: 8
+recon_c_w: 1
+recon_s_w: 1
+recon_x_cyc_w: 0
+recon_x_w: 10
+snapshot_save_iter: 1000
+step_size: 100000
+vgg_w: 0
+weight_decay: 0.0001
