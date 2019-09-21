@@ -185,6 +185,8 @@ def runner(args, partition):
 
                 all_images[n_images * i + j]["file_name"] = bname
                 all_images[n_images * i + j]["coco_url"] = bname
+                all_images[n_images * i + j]["path"] = bname
+
 
         for i in range(args.nvar):
             for j in range(n_annotations):
