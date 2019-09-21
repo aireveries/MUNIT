@@ -37,6 +37,7 @@ def parse_args():
     parser.add_argument("--in-height", default=512, type=int, help="If -1, don't resize")
     parser.add_argument("--out-width", default=1280, type=int)
     parser.add_argument("--out-height", default=720, type=int)
+    parser.add_argument("--format", default='yolo')
     return parser.parse_args()
 
 
@@ -57,20 +58,21 @@ class Options(object):
 
 def runner(args, partition):
     synth_path = Path(args.synthetic_folder)
-    synthetic_images_list_file = f"{synth_path / 'annotations/{}.txt'}".format(partition)
-    synthetic_labels_base_path = f"{synth_path / 'labels/{}/'}".format(partition)
-    ann_file = f"{synth_path / 'annotations/instances_{}.json'}".format(partition)
 
-    # real_path = Path(args.real_folder)
-    # real_images_list = f"{real_path / '*.jpg'}"
-    
-    
-    with open(synthetic_images_list_file, "r") as f:
-        synthetic_images_list = sorted(list([f.replace("\n", "") for f in f.readlines()]))
+    ann_file = f"{synth_path / 'annotations/instances_{}.json'}".format(partition)
+    with open(ann_file, "r") as f:
+        ann = json.load(f)
+
+    if args.format == 'yolo':
+        synthetic_images_list_file = f"{synth_path / 'annotations/{}.txt'}".format(partition)
+        synthetic_labels_base_path = f"{synth_path / 'labels/{}/'}".format(partition)
+        with open(synthetic_images_list_file, "r") as f:
+            synthetic_images_list = sorted(list([f.replace("\n", "") for f in f.readlines()]))
+    elif args.format == 'coco':
+        synthetic_images_list = list(sorted(img['path'] for img in ann['images']))
+
     real_images_list = sorted(list(glob(args.real_glob)))
-    # real_images_list = sorted(list(glob.glob(real_images_list)))
-    
-    
+
     opts = Options(args.config, args.checkpoint)
     
     torch.manual_seed(opts.seed)
@@ -160,10 +162,7 @@ def runner(args, partition):
     os.makedirs(images_loc, exist_ok=True)
     os.makedirs(annotations_loc, exist_ok=True)
     
-    if args.blockidx == 0:
-        with open(ann_file, "r") as f:
-            ann = json.load(f)
-    
+    if args.blockidx == 0:    
         # Replicate images, annotations
         n_images, n_annotations = len(ann["images"]), len(ann["annotations"])
 
@@ -224,14 +223,11 @@ def runner(args, partition):
             output_image.save(gen_image_path)
 
             # Copy labels
-            label_file = os.path.splitext(os.path.basename(synthetic_image_path))[0] + ".txt"
-            styled_label_file = os.path.splitext(os.path.basename(synthetic_image_path))[0] + "-{}.txt".format(style_ix)
-            shutil.copyfile(os.path.join(synthetic_labels_base_path, label_file),
-                            os.path.join(labels_loc, styled_label_file))
-
-    # import pickle
-    # with open(os.path.join(metadata_loc, "metadata_{}.pkl".format(partition)), "w") as f:
-    #     pickle.dump(metadata, f)
+            if args.format == 'yolo':
+                label_file = os.path.splitext(os.path.basename(synthetic_image_path))[0] + ".txt"
+                styled_label_file = os.path.splitext(os.path.basename(synthetic_image_path))[0] + "-{}.txt".format(style_ix)
+                shutil.copyfile(os.path.join(synthetic_labels_base_path, label_file),
+                                os.path.join(labels_loc, styled_label_file))
 
 
 def main():
